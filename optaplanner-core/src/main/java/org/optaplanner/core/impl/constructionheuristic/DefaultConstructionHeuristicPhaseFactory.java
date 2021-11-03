@@ -70,6 +70,7 @@ public class DefaultConstructionHeuristicPhaseFactory<Solution_>
                         : constructionHeuristicType_.getDefaultEntitySorterManner());
         phaseConfigPolicy.setValueSorterManner(phaseConfig.getValueSorterManner() != null ? phaseConfig.getValueSorterManner()
                 : constructionHeuristicType_.getDefaultValueSorterManner());
+
         EntityPlacerConfig entityPlacerConfig_;
         if (phaseConfig.getEntityPlacerConfig() == null) {
             entityPlacerConfig_ = buildUnfoldedEntityPlacerConfig(phaseConfigPolicy, constructionHeuristicType_);

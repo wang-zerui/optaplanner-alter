@@ -42,6 +42,9 @@ public class ConstructionHeuristicStepScope<Solution_> extends AbstractStepScope
         this.phaseScope = phaseScope;
     }
 
+    /**
+     * getter setters
+     * **/
     @Override
     public ConstructionHeuristicPhaseScope<Solution_> getPhaseScope() {
         return phaseScope;

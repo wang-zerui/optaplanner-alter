@@ -25,6 +25,7 @@ import org.optaplanner.core.impl.solver.scope.SolverScope;
  */
 public class ConstructionHeuristicPhaseScope<Solution_> extends AbstractPhaseScope<Solution_> {
 
+    // 上一步的PhaseScope
     private ConstructionHeuristicStepScope<Solution_> lastCompletedStepScope;
 
     public ConstructionHeuristicPhaseScope(SolverScope<Solution_> solverScope) {
@@ -32,11 +33,17 @@ public class ConstructionHeuristicPhaseScope<Solution_> extends AbstractPhaseSco
         lastCompletedStepScope = new ConstructionHeuristicStepScope<>(this, -1);
     }
 
+    /**
+     * 获得上一步的scope，solve中使用，override method
+     */
     @Override
     public ConstructionHeuristicStepScope<Solution_> getLastCompletedStepScope() {
         return lastCompletedStepScope;
     }
 
+    /**
+     * 设置上一步的scope
+     */
     public void setLastCompletedStepScope(ConstructionHeuristicStepScope<Solution_> lastCompletedStepScope) {
         this.lastCompletedStepScope = lastCompletedStepScope;
     }

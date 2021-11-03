@@ -62,12 +62,16 @@ public class DefaultConstructionHeuristicPhase<Solution_> extends AbstractPhase<
     @Override
     public void solve(SolverScope<Solution_> solverScope) {
         ConstructionHeuristicPhaseScope<Solution_> phaseScope = new ConstructionHeuristicPhaseScope<>(solverScope);
+        // 算法开始
         phaseStarted(phaseScope);
 
+        // 遍历PlanningEntity
         for (Placement<Solution_> placement : entityPlacer) {
             ConstructionHeuristicStepScope<Solution_> stepScope = new ConstructionHeuristicStepScope<>(phaseScope);
             stepStarted(stepScope);
+            // 决定下一步
             decider.decideNextStep(stepScope, placement);
+            // 错误分析和输出
             if (stepScope.getStep() == null) {
                 if (phaseTermination.isPhaseTerminated(phaseScope)) {
                     logger.trace("{}    Step index ({}), time spent ({}) terminated without picking a nextStep.",
@@ -88,6 +92,7 @@ public class DefaultConstructionHeuristicPhase<Solution_> extends AbstractPhase<
                 // Although stepStarted has been called, stepEnded is not called for this step
                 break;
             }
+            // （真正）进行这一步
             doStep(stepScope);
             stepEnded(stepScope);
             phaseScope.setLastCompletedStepScope(stepScope);

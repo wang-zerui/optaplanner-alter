@@ -33,6 +33,7 @@ public class CloudComputer extends AbstractPersistable implements Labeled {
     }
 
     public CloudComputer(long id, int cpuPower, int memory, int networkBandwidth, int cost) {
+        // planningId
         super(id);
         this.cpuPower = cpuPower;
         this.memory = memory;

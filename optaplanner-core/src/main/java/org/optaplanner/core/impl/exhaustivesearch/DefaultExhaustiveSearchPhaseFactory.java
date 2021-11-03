@@ -82,6 +82,7 @@ public class DefaultExhaustiveSearchPhaseFactory<Solution_>
                         + ") which is not compatible with its exhaustiveSearchType (" + phaseConfig.getExhaustiveSearchType()
                         + ").");
             }
+
         } else {
             nodeExplorationType_ = defaultIfNull(phaseConfig.getNodeExplorationType(), NodeExplorationType.DEPTH_FIRST);
         }
