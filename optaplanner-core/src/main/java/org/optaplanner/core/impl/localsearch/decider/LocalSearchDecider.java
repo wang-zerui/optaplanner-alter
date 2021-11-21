@@ -109,7 +109,6 @@ public class LocalSearchDecider<Solution_> {
         int moveIndex = 0;
         // 遍历每个邻域，即一行
         for (Move<Solution_> move : moveSelector) {
-            logger.info(move.toString());
             LocalSearchMoveScope<Solution_> moveScope = new LocalSearchMoveScope<>(stepScope, moveIndex, move);
             moveIndex++;
             // TODO use Selector filtering to filter out not doable moves

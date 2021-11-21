@@ -93,6 +93,7 @@ public class ConstructionHeuristicDecider<Solution_> {
 
     public void decideNextStep(ConstructionHeuristicStepScope<Solution_> stepScope, Placement<Solution_> placement) {
         int moveIndex = 0;
+        int i = 0;
         for (Move<Solution_> move : placement) {
             ConstructionHeuristicMoveScope<Solution_> moveScope = new ConstructionHeuristicMoveScope<>(stepScope, moveIndex,
                     move);

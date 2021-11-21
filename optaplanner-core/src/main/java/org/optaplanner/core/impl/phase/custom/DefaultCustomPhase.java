@@ -16,9 +16,16 @@
 
 package org.optaplanner.core.impl.phase.custom;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.optaplanner.core.api.domain.solution.PlanningSolution;
+import org.optaplanner.core.api.score.Score;
+import org.optaplanner.core.api.score.director.ScoreDirector;
+import org.optaplanner.core.impl.heuristic.move.Move;
+import org.optaplanner.core.impl.heuristic.selector.move.MoveSelector;
+import org.optaplanner.core.impl.localsearch.scope.LocalSearchStepScope;
 import org.optaplanner.core.impl.phase.AbstractPhase;
 import org.optaplanner.core.impl.phase.custom.scope.CustomPhaseScope;
 import org.optaplanner.core.impl.phase.custom.scope.CustomStepScope;
@@ -33,14 +40,10 @@ import org.optaplanner.core.impl.solver.termination.Termination;
  */
 public class DefaultCustomPhase<Solution_> extends AbstractPhase<Solution_> implements CustomPhase<Solution_> {
 
-    protected List<CustomPhaseCommand<Solution_>> customPhaseCommandList;
+    protected MoveSelector<Solution_> moveSelector;
 
     public DefaultCustomPhase(int phaseIndex, String logIndentation, Termination<Solution_> termination) {
         super(phaseIndex, logIndentation, termination);
-    }
-
-    public void setCustomPhaseCommandList(List<CustomPhaseCommand<Solution_>> customPhaseCommandList) {
-        this.customPhaseCommandList = customPhaseCommandList;
     }
 
     @Override
@@ -48,6 +51,13 @@ public class DefaultCustomPhase<Solution_> extends AbstractPhase<Solution_> impl
         return "Custom";
     }
 
+    public MoveSelector<Solution_> getMoveSelector() {
+        return moveSelector;
+    }
+
+    public void setMoveSelector(MoveSelector<Solution_> moveSelector){
+        this.moveSelector = moveSelector;
+    }
     // ************************************************************************
     // Worker methods
     // ************************************************************************
@@ -57,34 +67,60 @@ public class DefaultCustomPhase<Solution_> extends AbstractPhase<Solution_> impl
         CustomPhaseScope<Solution_> phaseScope = new CustomPhaseScope<>(solverScope);
         phaseStarted(phaseScope);
         CustomStepScope<Solution_> stepScope = new CustomStepScope<>(phaseScope);
-        for (CustomPhaseCommand<Solution_> customPhaseCommand : customPhaseCommandList) {
-            solverScope.checkYielding();
-            if (phaseTermination.isPhaseTerminated(phaseScope)) {
-                break;
-            }
+
+        InnerScoreDirector<Solution_, ?> scoreDirector = solverScope.getScoreDirector();
+        while(!phaseTermination.isPhaseTerminated(phaseScope)){
+            List<Move<Solution_>> moves = new ArrayList<>();
+            List<Score> scores = new ArrayList<>();
+
             stepStarted(stepScope);
-            doStep(stepScope, customPhaseCommand);
-            stepEnded(stepScope);
-            phaseScope.setLastCompletedStepScope(stepScope);
-            stepScope = new CustomStepScope<>(phaseScope);
+
+            for(Move<Solution_> move : moveSelector){
+                Move<Solution_> undoMove = move.doMove(scoreDirector);
+                Score score = scoreDirector.calculateScore();
+                moves.add(move);
+                scores.add(score);
+                undoMove.doMove(scoreDirector);
+            }
+
+            Score maxScore = Collections.max(scores);
+            int i = scores.indexOf(maxScore);
+            Move<Solution_> nextStep = moves.get(i);
+            stepScope.setScore(maxScore);
+
+            Score bestScore = solverScope.getBestScore();
+            if( maxScore.compareTo(bestScore) <= 0 ) {
+                break;
+            }else{
+                doStep(stepScope, nextStep);
+                stepEnded(stepScope);
+            }
         }
+
         phaseEnded(phaseScope);
     }
 
     public void phaseStarted(CustomPhaseScope<Solution_> phaseScope) {
         super.phaseStarted(phaseScope);
+        moveSelector.phaseStarted(phaseScope);
     }
 
     public void stepStarted(CustomStepScope<Solution_> stepScope) {
         super.stepStarted(stepScope);
     }
 
-    private void doStep(CustomStepScope<Solution_> stepScope, CustomPhaseCommand<Solution_> customPhaseCommand) {
-        InnerScoreDirector<Solution_, ?> scoreDirector = stepScope.getScoreDirector();
-        customPhaseCommand.changeWorkingSolution(scoreDirector);
-        calculateWorkingStepScore(stepScope, customPhaseCommand);
+    protected void doStep(CustomStepScope<Solution_> stepScope, Move<Solution_> step) {
+        Move<Solution_> undoStep = step.doMove(stepScope.getScoreDirector());
+        predictWorkingStepScore(stepScope, step);
         solver.getBestSolutionRecaller().processWorkingSolutionDuringStep(stepScope);
     }
+
+//    private void doStep(CustomStepScope<Solution_> stepScope, CustomPhaseCommand<Solution_> customPhaseCommand) {
+//        InnerScoreDirector<Solution_, ?> scoreDirector = stepScope.getScoreDirector();
+//        customPhaseCommand.changeWorkingSolution(scoreDirector);
+//        calculateWorkingStepScore(stepScope, customPhaseCommand);
+//        solver.getBestSolutionRecaller().processWorkingSolutionDuringStep(stepScope);
+//    }
 
     public void stepEnded(CustomStepScope<Solution_> stepScope) {
         super.stepEnded(stepScope);
@@ -107,6 +143,9 @@ public class DefaultCustomPhase<Solution_> extends AbstractPhase<Solution_> impl
     public void phaseEnded(CustomPhaseScope<Solution_> phaseScope) {
         super.phaseEnded(phaseScope);
         phaseScope.endingNow();
+
+        moveSelector.phaseStarted(phaseScope);
+
         logger.info("{}Custom phase ({}) ended: time spent ({}), best score ({}),"
                 + " score calculation speed ({}/sec), step total ({}).",
                 logIndentation,

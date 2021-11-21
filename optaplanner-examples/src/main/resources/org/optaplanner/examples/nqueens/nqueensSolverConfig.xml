@@ -12,9 +12,9 @@
   <termination>
     <bestScoreLimit>0</bestScoreLimit>
   </termination>
-<!--  <constructionHeuristic>-->
-<!--    <constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>-->
-<!--  </constructionHeuristic>-->
+  <constructionHeuristic>
+    <constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>
+  </constructionHeuristic>
 <!--  <localSearch>-->
 <!--    <termination>-->
 <!--      <bestScoreLimit>0</bestScoreLimit>-->

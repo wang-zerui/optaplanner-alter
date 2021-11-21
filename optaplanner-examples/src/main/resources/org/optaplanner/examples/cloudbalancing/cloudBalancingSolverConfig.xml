@@ -31,6 +31,10 @@
     <constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>
   </constructionHeuristic>
   <localSearch>
+    <termination>
+<!--      <bestScoreLimit>0</bestScoreLimit>-->
+      <unimprovedStepCountLimit>100</unimprovedStepCountLimit>
+    </termination>
     <unionMoveSelector>
       <changeMoveSelector/>
       <swapMoveSelector/>
@@ -45,6 +49,11 @@
     </forager>
   </localSearch>
 
+<!--  <customPhase>-->
+<!--    <customPhaseCommandClass>-->
+<!--      org.optaplanner.core.impl.phase.custom.NoChangeCustomPhaseCommand-->
+<!--    </customPhaseCommandClass>-->
+<!--  </customPhase>-->
   <!-- Alternative power tweaked optimization algorithms configuration -->
   <!--<partitionedSearch>-->
     <!--<solutionPartitionerClass>org.optaplanner.examples.cloudbalancing.optional.partitioner.CloudBalancePartitioner</solutionPartitionerClass>-->

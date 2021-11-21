@@ -35,17 +35,17 @@ public class CloudBalancingHelloWorld {
 
     public static void main(String[] args) {
         // Build the Solver
-        SolverFactory<CloudBalance> solverFactory = SolverFactory.create(new SolverConfig()
-                .withSolutionClass(CloudBalance.class)
-                .withEntityClasses(CloudProcess.class)
-                .withConstraintProviderClass(CloudBalancingConstraintProvider.class)
-                .withTerminationSpentLimit(Duration.ofMinutes(2)));
-//        SolverFactory<CloudBalance> solverFactory = SolverFactory.createFromXmlResource(
-//                "org/optaplanner/examples/cloudbalancing/cloudBalancingSolverConfig.xml");
+//        SolverFactory<CloudBalance> solverFactory = SolverFactory.create(new SolverConfig()
+//                .withSolutionClass(CloudBalance.class)
+//                .withEntityClasses(CloudProcess.class)
+//                .withConstraintProviderClass(CloudBalancingConstraintProvider.class)
+//                .withTerminationSpentLimit(Duration.ofMinutes(2)));
+        SolverFactory<CloudBalance> solverFactory = SolverFactory.createFromXmlResource(
+                "org/optaplanner/examples/cloudbalancing/cloudBalancingSolverConfig.xml");
         Solver<CloudBalance> solver = solverFactory.buildSolver();
 
         // Load a problem with 400 computers and 1200 processes
-        CloudBalance unsolvedCloudBalance = new CloudBalancingGenerator().createCloudBalance(100, 300);
+        CloudBalance unsolvedCloudBalance = new CloudBalancingGenerator().createCloudBalance(4, 12);
 
         // Solve the problem
         CloudBalance solvedCloudBalance = solver.solve(unsolvedCloudBalance);

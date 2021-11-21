@@ -17,13 +17,24 @@
 package org.optaplanner.core.impl.phase.custom;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.optaplanner.core.config.heuristic.selector.common.SelectionCacheType;
+import org.optaplanner.core.config.heuristic.selector.common.SelectionOrder;
+import org.optaplanner.core.config.heuristic.selector.move.composite.UnionMoveSelectorConfig;
+import org.optaplanner.core.config.heuristic.selector.move.generic.ChangeMoveSelectorConfig;
+import org.optaplanner.core.config.heuristic.selector.move.generic.SwapMoveSelectorConfig;
+import org.optaplanner.core.config.localsearch.LocalSearchType;
 import org.optaplanner.core.config.phase.custom.CustomPhaseConfig;
 import org.optaplanner.core.config.solver.EnvironmentMode;
 import org.optaplanner.core.config.util.ConfigUtils;
 import org.optaplanner.core.impl.heuristic.HeuristicConfigPolicy;
+import org.optaplanner.core.impl.heuristic.selector.move.MoveSelector;
+import org.optaplanner.core.impl.heuristic.selector.move.MoveSelectorFactory;
+import org.optaplanner.core.impl.heuristic.selector.move.composite.UnionMoveSelectorFactory;
+import org.optaplanner.core.impl.heuristic.selector.move.generic.ChangeMoveSelectorFactory;
 import org.optaplanner.core.impl.phase.AbstractPhaseFactory;
 import org.optaplanner.core.impl.solver.recaller.BestSolutionRecaller;
 import org.optaplanner.core.impl.solver.termination.Termination;
@@ -40,42 +51,23 @@ public class DefaultCustomPhaseFactory<Solution_> extends AbstractPhaseFactory<S
         HeuristicConfigPolicy<Solution_> phaseConfigPolicy = solverConfigPolicy.createPhaseConfigPolicy();
         DefaultCustomPhase<Solution_> phase = new DefaultCustomPhase<>(phaseIndex,
                 solverConfigPolicy.getLogIndentation(), buildPhaseTermination(phaseConfigPolicy, solverTermination));
-//        if (ConfigUtils.isEmptyCollection(phaseConfig.getCustomPhaseCommandClassList())
-//                && ConfigUtils.isEmptyCollection(phaseConfig.getCustomPhaseCommandList())) {
-//            throw new IllegalArgumentException(
-//                    "Configure at least 1 <customPhaseCommandClass> in the <customPhase> configuration.");
-//        }
-//
-//        List<CustomPhaseCommand<Solution_>> customPhaseCommandList_ = new ArrayList<>(getCustomPhaseCommandListSize());
-//        if (phaseConfig.getCustomPhaseCommandClassList() != null) {
-//            for (Class<? extends CustomPhaseCommand> customPhaseCommandClass : phaseConfig.getCustomPhaseCommandClassList()) {
-//                customPhaseCommandList_.add(createCustomPhaseCommand(customPhaseCommandClass));
-//            }
-//        }
-//        if (phaseConfig.getCustomPhaseCommandList() != null) {
-//            customPhaseCommandList_.addAll((Collection) phaseConfig.getCustomPhaseCommandList());
-//        }
-//        phase.setCustomPhaseCommandList(customPhaseCommandList_);
 
 
         EnvironmentMode environmentMode = phaseConfigPolicy.getEnvironmentMode();
         if (environmentMode.isNonIntrusiveFullAsserted()) {
             phase.setAssertStepScoreFromScratch(true);
         }
+
+        phase.setMoveSelector(buildMoveSelector(phaseConfigPolicy));
         return phase;
     }
 
-    private CustomPhaseCommand<Solution_>
-            createCustomPhaseCommand(Class<? extends CustomPhaseCommand> customPhaseCommandClass) {
-        CustomPhaseCommand<Solution_> customPhaseCommand = ConfigUtils.newInstance(phaseConfig,
-                "customPhaseCommandClass", customPhaseCommandClass);
-        ConfigUtils.applyCustomProperties(customPhaseCommand, "customPhaseCommandClass", phaseConfig.getCustomProperties(),
-                "customProperties");
-        return customPhaseCommand;
-    }
-
-    private int getCustomPhaseCommandListSize() {
-        return (phaseConfig.getCustomPhaseCommandClassList() == null ? 0 : phaseConfig.getCustomPhaseCommandClassList().size())
-                + (phaseConfig.getCustomPhaseCommandList() == null ? 0 : phaseConfig.getCustomPhaseCommandList().size());
+    protected MoveSelector<Solution_> buildMoveSelector(HeuristicConfigPolicy<Solution_> configPolicy) {
+        SelectionCacheType defaultCacheType = SelectionCacheType.JUST_IN_TIME;
+        SelectionOrder defaultSelectionOrder = SelectionOrder.ORIGINAL;
+        ChangeMoveSelectorConfig changeMoveSelectorConfig = new ChangeMoveSelectorConfig();
+        MoveSelector<Solution_> moveSelector = new ChangeMoveSelectorFactory<Solution_>(changeMoveSelectorConfig)
+                .buildMoveSelector(configPolicy, defaultCacheType, defaultSelectionOrder);
+        return moveSelector;
     }
 }
