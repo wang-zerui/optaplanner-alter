@@ -2,6 +2,8 @@
 :sonarBadge: image:https://sonarcloud.io/api/project_badges/measure?project={projectKey}
 :sonarLink: link="https://sonarcloud.io/dashboard?id={projectKey}"
 
+= 算法替换代码仓库
+
 = OptaPlanner
 
 https://www.optaplanner.org/[www.optaplanner.org]
