@@ -16,16 +16,20 @@
 
 package org.optaplanner.core.impl.localsearch;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.optaplanner.core.api.domain.solution.PlanningSolution;
+import org.optaplanner.core.api.score.Score;
 import org.optaplanner.core.api.score.constraint.ConstraintMatchTotal;
+import org.optaplanner.core.api.score.director.ScoreDirector;
 import org.optaplanner.core.config.solver.monitoring.SolverMetric;
+import org.optaplanner.core.impl.constructionheuristic.placer.EntityPlacer;
+import org.optaplanner.core.impl.constructionheuristic.placer.Placement;
 import org.optaplanner.core.impl.heuristic.move.Move;
+import org.optaplanner.core.impl.heuristic.selector.move.MoveSelector;
 import org.optaplanner.core.impl.localsearch.decider.LocalSearchDecider;
 import org.optaplanner.core.impl.localsearch.event.LocalSearchPhaseLifecycleListener;
 import org.optaplanner.core.impl.localsearch.scope.LocalSearchPhaseScope;
@@ -76,23 +80,76 @@ public class DefaultLocalSearchPhase<Solution_> extends AbstractPhase<Solution_>
     // Worker methods
     // ************************************************************************
 
+    protected MoveSelector<Solution_> moveSelector;
+    public void setMoveSelector(MoveSelector<Solution_> moveSelector) {
+        this.moveSelector = moveSelector;
+    }
+
     @Override
-    public void solve(SolverScope<Solution_> solverScope) {
+    public void solve(SolverScope<Solution_> solverScope){
+        InnerScoreDirector<Solution_, ?> scoreDirector = solverScope.getScoreDirector();
         LocalSearchPhaseScope<Solution_> phaseScope = new LocalSearchPhaseScope<>(solverScope);
         phaseStarted(phaseScope);
 
+        for(int i = 0; i < 10 ; i++) {
+            logger.info(String.valueOf(solverScope.getWorkingRandom().nextDouble()));
+        }
+        while(!phaseTermination.isPhaseTerminated(phaseScope)){
+            LocalSearchStepScope<Solution_> stepScope = new LocalSearchStepScope<>(phaseScope);
+            List<Move<Solution_>> moves = new ArrayList<>();
+            List<Score> scores = new ArrayList<>();
+            stepStarted(stepScope);
+            for(Move<Solution_> move : moveSelector){
+                Move<Solution_> undoMove = move.doMove(scoreDirector);
+                Score score = scoreDirector.calculateScore();
+                moves.add(move);
+                scores.add(score);
+                undoMove.doMove(scoreDirector);
+            }
+            Score maxScore = Collections.max(scores);
+            int i = scores.indexOf(maxScore);
+            Move<Solution_> nextStep = moves.get(i);
+
+            stepScope.setStep(nextStep);
+            stepScope.setScore(maxScore);
+            stepScope.setStepString(nextStep.toString());
+
+            doStep(stepScope);
+            stepEnded(stepScope);
+            phaseScope.setLastCompletedStepScope(stepScope);
+        }
+
+        phaseEnded(phaseScope);
+    }
+
+//    public Boolean isTerminate() {
+//
+//        return true;
+//    }
+
+
+    /**
+    @Override
+    public void solve(SolverScope<Solution_> solverScope) {
+        LocalSearchPhaseScope<Solution_> phaseScope = new LocalSearchPhaseScope<>(solverScope);
+        phaseStarted(phaseScope); // 算法开始
         if (solverScope.isMetricEnabled(SolverMetric.MOVE_COUNT_PER_STEP)) {
             Metrics.gauge(SolverMetric.MOVE_COUNT_PER_STEP.getMeterId() + ".accepted",
                     solverScope.getMonitoringTags(), acceptedMoveCountPerStep);
             Metrics.gauge(SolverMetric.MOVE_COUNT_PER_STEP.getMeterId() + ".selected",
                     solverScope.getMonitoringTags(), selectedMoveCountPerStep);
         }
-
+        // 主循环(步骤二三的循环)
         while (!phaseTermination.isPhaseTerminated(phaseScope)) {
             LocalSearchStepScope<Solution_> stepScope = new LocalSearchStepScope<>(phaseScope);
-            stepScope.setTimeGradient(phaseTermination.calculatePhaseTimeGradient(phaseScope));
+            stepScope.setTimeGradient(phaseTermination.calculatePhaseTimeGradient(phaseScope)); // 设置时间梯度，模拟退火中可能会使用
+            // 算法步骤二开始标志
             stepStarted(stepScope);
+            // 调用decider决定下一步
+            // 下一步通过stepScope.getStep()获取
+            // 比如：将 process1 分配到 computer2 上
             decider.decideNextStep(stepScope);
+            // 处理没有得到下一步的情况，会throw一些错误信息
             if (stepScope.getStep() == null) {
                 if (phaseTermination.isPhaseTerminated(phaseScope)) {
                     logger.trace("{}    Step index ({}), time spent ({}) terminated without picking a nextStep.",
@@ -114,13 +171,15 @@ public class DefaultLocalSearchPhase<Solution_> extends AbstractPhase<Solution_>
                 // Although stepStarted has been called, stepEnded is not called for this step
                 break;
             }
+            // 真正进行这一步
+            logger.info("decide结束");
             doStep(stepScope);
             stepEnded(stepScope);
             phaseScope.setLastCompletedStepScope(stepScope);
         }
         phaseEnded(phaseScope);
     }
-
+*/
     protected void doStep(LocalSearchStepScope<Solution_> stepScope) {
         Move<Solution_> step = stepScope.getStep();
         Move<Solution_> undoStep = step.doMove(stepScope.getScoreDirector());
@@ -139,6 +198,7 @@ public class DefaultLocalSearchPhase<Solution_> extends AbstractPhase<Solution_>
     public void phaseStarted(LocalSearchPhaseScope<Solution_> phaseScope) {
         super.phaseStarted(phaseScope);
         decider.phaseStarted(phaseScope);
+        moveSelector.phaseStarted(phaseScope);
         // TODO maybe this restriction should be lifted to allow LocalSearch to initialize a solution too?
         assertWorkingSolutionInitialized(phaseScope);
     }
@@ -218,6 +278,7 @@ public class DefaultLocalSearchPhase<Solution_> extends AbstractPhase<Solution_>
     public void phaseEnded(LocalSearchPhaseScope<Solution_> phaseScope) {
         super.phaseEnded(phaseScope);
         decider.phaseEnded(phaseScope);
+        moveSelector.phaseEnded(phaseScope);
         phaseScope.endingNow();
         logger.info("{}Local Search phase ({}) ended: time spent ({}), best score ({}),"
                 + " score calculation speed ({}/sec), step total ({}).",

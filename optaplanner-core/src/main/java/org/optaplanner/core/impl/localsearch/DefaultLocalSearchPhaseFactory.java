@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.ThreadFactory;
 
+import org.optaplanner.core.config.constructionheuristic.placer.EntityPlacerConfig;
+import org.optaplanner.core.config.constructionheuristic.placer.QueuedEntityPlacerConfig;
 import org.optaplanner.core.config.heuristic.selector.common.SelectionCacheType;
 import org.optaplanner.core.config.heuristic.selector.common.SelectionOrder;
 import org.optaplanner.core.config.heuristic.selector.move.composite.UnionMoveSelectorConfig;
@@ -34,6 +36,8 @@ import org.optaplanner.core.config.localsearch.decider.acceptor.LocalSearchAccep
 import org.optaplanner.core.config.localsearch.decider.forager.LocalSearchForagerConfig;
 import org.optaplanner.core.config.localsearch.decider.forager.LocalSearchPickEarlyType;
 import org.optaplanner.core.config.solver.EnvironmentMode;
+import org.optaplanner.core.impl.constructionheuristic.placer.EntityPlacer;
+import org.optaplanner.core.impl.constructionheuristic.placer.EntityPlacerFactory;
 import org.optaplanner.core.impl.heuristic.HeuristicConfigPolicy;
 import org.optaplanner.core.impl.heuristic.selector.move.MoveSelector;
 import org.optaplanner.core.impl.heuristic.selector.move.MoveSelectorFactory;
@@ -73,6 +77,8 @@ public class DefaultLocalSearchPhaseFactory<Solution_>
             phase.setAssertExpectedStepScore(true);
             phase.setAssertShadowVariablesAreNotStaleAfterStep(true);
         }
+        MoveSelector<Solution_> moveSelector = buildMoveSelector(phaseConfigPolicy);
+        phase.setMoveSelector(moveSelector);
         return phase;
     }
 

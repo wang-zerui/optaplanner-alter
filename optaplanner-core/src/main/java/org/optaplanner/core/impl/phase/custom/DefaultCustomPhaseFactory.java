@@ -40,22 +40,24 @@ public class DefaultCustomPhaseFactory<Solution_> extends AbstractPhaseFactory<S
         HeuristicConfigPolicy<Solution_> phaseConfigPolicy = solverConfigPolicy.createPhaseConfigPolicy();
         DefaultCustomPhase<Solution_> phase = new DefaultCustomPhase<>(phaseIndex,
                 solverConfigPolicy.getLogIndentation(), buildPhaseTermination(phaseConfigPolicy, solverTermination));
-        if (ConfigUtils.isEmptyCollection(phaseConfig.getCustomPhaseCommandClassList())
-                && ConfigUtils.isEmptyCollection(phaseConfig.getCustomPhaseCommandList())) {
-            throw new IllegalArgumentException(
-                    "Configure at least 1 <customPhaseCommandClass> in the <customPhase> configuration.");
-        }
+//        if (ConfigUtils.isEmptyCollection(phaseConfig.getCustomPhaseCommandClassList())
+//                && ConfigUtils.isEmptyCollection(phaseConfig.getCustomPhaseCommandList())) {
+//            throw new IllegalArgumentException(
+//                    "Configure at least 1 <customPhaseCommandClass> in the <customPhase> configuration.");
+//        }
+//
+//        List<CustomPhaseCommand<Solution_>> customPhaseCommandList_ = new ArrayList<>(getCustomPhaseCommandListSize());
+//        if (phaseConfig.getCustomPhaseCommandClassList() != null) {
+//            for (Class<? extends CustomPhaseCommand> customPhaseCommandClass : phaseConfig.getCustomPhaseCommandClassList()) {
+//                customPhaseCommandList_.add(createCustomPhaseCommand(customPhaseCommandClass));
+//            }
+//        }
+//        if (phaseConfig.getCustomPhaseCommandList() != null) {
+//            customPhaseCommandList_.addAll((Collection) phaseConfig.getCustomPhaseCommandList());
+//        }
+//        phase.setCustomPhaseCommandList(customPhaseCommandList_);
 
-        List<CustomPhaseCommand<Solution_>> customPhaseCommandList_ = new ArrayList<>(getCustomPhaseCommandListSize());
-        if (phaseConfig.getCustomPhaseCommandClassList() != null) {
-            for (Class<? extends CustomPhaseCommand> customPhaseCommandClass : phaseConfig.getCustomPhaseCommandClassList()) {
-                customPhaseCommandList_.add(createCustomPhaseCommand(customPhaseCommandClass));
-            }
-        }
-        if (phaseConfig.getCustomPhaseCommandList() != null) {
-            customPhaseCommandList_.addAll((Collection) phaseConfig.getCustomPhaseCommandList());
-        }
-        phase.setCustomPhaseCommandList(customPhaseCommandList_);
+
         EnvironmentMode environmentMode = phaseConfigPolicy.getEnvironmentMode();
         if (environmentMode.isNonIntrusiveFullAsserted()) {
             phase.setAssertStepScoreFromScratch(true);

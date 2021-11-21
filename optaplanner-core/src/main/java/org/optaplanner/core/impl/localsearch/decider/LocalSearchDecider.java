@@ -103,10 +103,13 @@ public class LocalSearchDecider<Solution_> {
     }
 
     public void decideNextStep(LocalSearchStepScope<Solution_> stepScope) {
+        // 获得scoreDirector用于之后的过程之计算每个solution的得分
         InnerScoreDirector<Solution_, ?> scoreDirector = stepScope.getScoreDirector();
         scoreDirector.setAllChangesWillBeUndoneBeforeStepEnds(true);
         int moveIndex = 0;
+        // 遍历每个邻域，即一行
         for (Move<Solution_> move : moveSelector) {
+            logger.info(move.toString());
             LocalSearchMoveScope<Solution_> moveScope = new LocalSearchMoveScope<>(stepScope, moveIndex, move);
             moveIndex++;
             // TODO use Selector filtering to filter out not doable moves
@@ -114,16 +117,20 @@ public class LocalSearchDecider<Solution_> {
                 logger.trace("{}        Move index ({}) not doable, ignoring move ({}).",
                         logIndentation, moveScope.getMoveIndex(), move);
             } else {
+                // 进行一个move
                 doMove(moveScope);
                 if (forager.isQuitEarly()) {
                     break;
                 }
             }
+            // 多线程相关
             stepScope.getPhaseScope().getSolverScope().checkYielding();
+            // 检验算法终止条件
             if (termination.isPhaseTerminated(stepScope.getPhaseScope())) {
                 break;
             }
         }
+        // 与108行对应
         scoreDirector.setAllChangesWillBeUndoneBeforeStepEnds(false);
         pickMove(stepScope);
     }

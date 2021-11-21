@@ -56,7 +56,6 @@ public class DefaultCustomPhase<Solution_> extends AbstractPhase<Solution_> impl
     public void solve(SolverScope<Solution_> solverScope) {
         CustomPhaseScope<Solution_> phaseScope = new CustomPhaseScope<>(solverScope);
         phaseStarted(phaseScope);
-
         CustomStepScope<Solution_> stepScope = new CustomStepScope<>(phaseScope);
         for (CustomPhaseCommand<Solution_> customPhaseCommand : customPhaseCommandList) {
             solverScope.checkYielding();
