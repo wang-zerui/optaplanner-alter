@@ -12,21 +12,21 @@
   <termination>
     <bestScoreLimit>0</bestScoreLimit>
   </termination>
-<!--  <constructionHeuristic>-->
-<!--    <constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>-->
-<!--  </constructionHeuristic>-->
-<!--  <localSearch>-->
-<!--    <termination>-->
-<!--      <bestScoreLimit>0</bestScoreLimit>-->
-<!--      <unimprovedStepCountLimit>100</unimprovedStepCountLimit>-->
-<!--    </termination>-->
-<!--    <changeMoveSelector>-->
-<!--      <selectionOrder>ORIGINAL</selectionOrder>-->
-<!--    </changeMoveSelector>-->
-<!--  </localSearch>-->
-  <customPhase>
-    <customPhaseCommandClass>
-      org.optaplanner.core.impl.phase.custom.NoChangeCustomPhaseCommand
-    </customPhaseCommandClass>
-  </customPhase>
+  <constructionHeuristic>
+    <constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>
+  </constructionHeuristic>
+  <localSearch>
+    <termination>
+      <bestScoreLimit>0</bestScoreLimit>
+      <unimprovedStepCountLimit>100</unimprovedStepCountLimit>
+    </termination>
+    <changeMoveSelector>
+      <selectionOrder>ORIGINAL</selectionOrder>
+    </changeMoveSelector>
+  </localSearch>
+<!--  <customPhase>-->
+<!--    <customPhaseCommandClass>-->
+<!--      org.optaplanner.core.impl.phase.custom.NoChangeCustomPhaseCommand-->
+<!--    </customPhaseCommandClass>-->
+<!--  </customPhase>-->
 </solver>

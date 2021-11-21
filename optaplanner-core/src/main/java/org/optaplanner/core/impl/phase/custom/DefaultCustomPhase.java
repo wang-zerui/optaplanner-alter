@@ -33,14 +33,8 @@ import org.optaplanner.core.impl.solver.termination.Termination;
  */
 public class DefaultCustomPhase<Solution_> extends AbstractPhase<Solution_> implements CustomPhase<Solution_> {
 
-    protected List<CustomPhaseCommand<Solution_>> customPhaseCommandList;
-
     public DefaultCustomPhase(int phaseIndex, String logIndentation, Termination<Solution_> termination) {
         super(phaseIndex, logIndentation, termination);
-    }
-
-    public void setCustomPhaseCommandList(List<CustomPhaseCommand<Solution_>> customPhaseCommandList) {
-        this.customPhaseCommandList = customPhaseCommandList;
     }
 
     @Override
@@ -57,17 +51,9 @@ public class DefaultCustomPhase<Solution_> extends AbstractPhase<Solution_> impl
         CustomPhaseScope<Solution_> phaseScope = new CustomPhaseScope<>(solverScope);
         phaseStarted(phaseScope);
         CustomStepScope<Solution_> stepScope = new CustomStepScope<>(phaseScope);
-        for (CustomPhaseCommand<Solution_> customPhaseCommand : customPhaseCommandList) {
-            solverScope.checkYielding();
-            if (phaseTermination.isPhaseTerminated(phaseScope)) {
-                break;
-            }
-            stepStarted(stepScope);
-            doStep(stepScope, customPhaseCommand);
-            stepEnded(stepScope);
-            phaseScope.setLastCompletedStepScope(stepScope);
-            stepScope = new CustomStepScope<>(phaseScope);
-        }
+
+        // 算法逻辑
+
         phaseEnded(phaseScope);
     }
 
@@ -77,13 +63,6 @@ public class DefaultCustomPhase<Solution_> extends AbstractPhase<Solution_> impl
 
     public void stepStarted(CustomStepScope<Solution_> stepScope) {
         super.stepStarted(stepScope);
-    }
-
-    private void doStep(CustomStepScope<Solution_> stepScope, CustomPhaseCommand<Solution_> customPhaseCommand) {
-        InnerScoreDirector<Solution_, ?> scoreDirector = stepScope.getScoreDirector();
-        customPhaseCommand.changeWorkingSolution(scoreDirector);
-        calculateWorkingStepScore(stepScope, customPhaseCommand);
-        solver.getBestSolutionRecaller().processWorkingSolutionDuringStep(stepScope);
     }
 
     public void stepEnded(CustomStepScope<Solution_> stepScope) {

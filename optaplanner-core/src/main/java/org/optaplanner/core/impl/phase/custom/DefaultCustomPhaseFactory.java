@@ -40,42 +40,10 @@ public class DefaultCustomPhaseFactory<Solution_> extends AbstractPhaseFactory<S
         HeuristicConfigPolicy<Solution_> phaseConfigPolicy = solverConfigPolicy.createPhaseConfigPolicy();
         DefaultCustomPhase<Solution_> phase = new DefaultCustomPhase<>(phaseIndex,
                 solverConfigPolicy.getLogIndentation(), buildPhaseTermination(phaseConfigPolicy, solverTermination));
-//        if (ConfigUtils.isEmptyCollection(phaseConfig.getCustomPhaseCommandClassList())
-//                && ConfigUtils.isEmptyCollection(phaseConfig.getCustomPhaseCommandList())) {
-//            throw new IllegalArgumentException(
-//                    "Configure at least 1 <customPhaseCommandClass> in the <customPhase> configuration.");
-//        }
-//
-//        List<CustomPhaseCommand<Solution_>> customPhaseCommandList_ = new ArrayList<>(getCustomPhaseCommandListSize());
-//        if (phaseConfig.getCustomPhaseCommandClassList() != null) {
-//            for (Class<? extends CustomPhaseCommand> customPhaseCommandClass : phaseConfig.getCustomPhaseCommandClassList()) {
-//                customPhaseCommandList_.add(createCustomPhaseCommand(customPhaseCommandClass));
-//            }
-//        }
-//        if (phaseConfig.getCustomPhaseCommandList() != null) {
-//            customPhaseCommandList_.addAll((Collection) phaseConfig.getCustomPhaseCommandList());
-//        }
-//        phase.setCustomPhaseCommandList(customPhaseCommandList_);
-
-
         EnvironmentMode environmentMode = phaseConfigPolicy.getEnvironmentMode();
         if (environmentMode.isNonIntrusiveFullAsserted()) {
             phase.setAssertStepScoreFromScratch(true);
         }
         return phase;
-    }
-
-    private CustomPhaseCommand<Solution_>
-            createCustomPhaseCommand(Class<? extends CustomPhaseCommand> customPhaseCommandClass) {
-        CustomPhaseCommand<Solution_> customPhaseCommand = ConfigUtils.newInstance(phaseConfig,
-                "customPhaseCommandClass", customPhaseCommandClass);
-        ConfigUtils.applyCustomProperties(customPhaseCommand, "customPhaseCommandClass", phaseConfig.getCustomProperties(),
-                "customProperties");
-        return customPhaseCommand;
-    }
-
-    private int getCustomPhaseCommandListSize() {
-        return (phaseConfig.getCustomPhaseCommandClassList() == null ? 0 : phaseConfig.getCustomPhaseCommandClassList().size())
-                + (phaseConfig.getCustomPhaseCommandList() == null ? 0 : phaseConfig.getCustomPhaseCommandList().size());
     }
 }

@@ -85,50 +85,8 @@ public class DefaultLocalSearchPhase<Solution_> extends AbstractPhase<Solution_>
         this.moveSelector = moveSelector;
     }
 
-    @Override
-    public void solve(SolverScope<Solution_> solverScope){
-        InnerScoreDirector<Solution_, ?> scoreDirector = solverScope.getScoreDirector();
-        LocalSearchPhaseScope<Solution_> phaseScope = new LocalSearchPhaseScope<>(solverScope);
-        phaseStarted(phaseScope);
-
-        for(int i = 0; i < 10 ; i++) {
-            logger.info(String.valueOf(solverScope.getWorkingRandom().nextDouble()));
-        }
-        while(!phaseTermination.isPhaseTerminated(phaseScope)){
-            LocalSearchStepScope<Solution_> stepScope = new LocalSearchStepScope<>(phaseScope);
-            List<Move<Solution_>> moves = new ArrayList<>();
-            List<Score> scores = new ArrayList<>();
-            stepStarted(stepScope);
-            for(Move<Solution_> move : moveSelector){
-                Move<Solution_> undoMove = move.doMove(scoreDirector);
-                Score score = scoreDirector.calculateScore();
-                moves.add(move);
-                scores.add(score);
-                undoMove.doMove(scoreDirector);
-            }
-            Score maxScore = Collections.max(scores);
-            int i = scores.indexOf(maxScore);
-            Move<Solution_> nextStep = moves.get(i);
-
-            stepScope.setStep(nextStep);
-            stepScope.setScore(maxScore);
-            stepScope.setStepString(nextStep.toString());
-
-            doStep(stepScope);
-            stepEnded(stepScope);
-            phaseScope.setLastCompletedStepScope(stepScope);
-        }
-
-        phaseEnded(phaseScope);
-    }
-
-//    public Boolean isTerminate() {
-//
-//        return true;
-//    }
 
 
-    /**
     @Override
     public void solve(SolverScope<Solution_> solverScope) {
         LocalSearchPhaseScope<Solution_> phaseScope = new LocalSearchPhaseScope<>(solverScope);
@@ -179,7 +137,7 @@ public class DefaultLocalSearchPhase<Solution_> extends AbstractPhase<Solution_>
         }
         phaseEnded(phaseScope);
     }
-*/
+
     protected void doStep(LocalSearchStepScope<Solution_> stepScope) {
         Move<Solution_> step = stepScope.getStep();
         Move<Solution_> undoStep = step.doMove(stepScope.getScoreDirector());
