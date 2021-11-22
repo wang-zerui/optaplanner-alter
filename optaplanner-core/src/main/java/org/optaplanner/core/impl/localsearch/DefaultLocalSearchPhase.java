@@ -130,7 +130,6 @@ public class DefaultLocalSearchPhase<Solution_> extends AbstractPhase<Solution_>
                 break;
             }
             // 真正进行这一步
-            logger.info("decide结束");
             doStep(stepScope);
             stepEnded(stepScope);
             phaseScope.setLastCompletedStepScope(stepScope);

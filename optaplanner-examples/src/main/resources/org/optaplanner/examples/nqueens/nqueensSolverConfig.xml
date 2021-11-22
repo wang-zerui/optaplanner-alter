@@ -20,9 +20,18 @@
       <bestScoreLimit>0</bestScoreLimit>
       <unimprovedStepCountLimit>100</unimprovedStepCountLimit>
     </termination>
-    <changeMoveSelector>
-      <selectionOrder>ORIGINAL</selectionOrder>
-    </changeMoveSelector>
+    <unionMoveSelector>
+      <changeMoveSelector/>
+      <swapMoveSelector/>
+      <pillarChangeMoveSelector/>
+      <pillarSwapMoveSelector/>
+    </unionMoveSelector>
+    <acceptor>
+      <entityTabuSize>7</entityTabuSize>
+    </acceptor>
+    <forager>
+      <acceptedCountLimit>1000</acceptedCountLimit>
+    </forager>
   </localSearch>
 <!--  <customPhase>-->
 <!--    <customPhaseCommandClass>-->
