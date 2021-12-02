@@ -34,6 +34,10 @@
     </forager>
   </localSearch>
 <!--  <customPhase>-->
+<!--    <termination>-->
+<!--      <bestScoreLimit>0</bestScoreLimit>-->
+<!--      <unimprovedStepCountLimit>100</unimprovedStepCountLimit>-->
+<!--    </termination>-->
 <!--    <customPhaseCommandClass>-->
 <!--      org.optaplanner.core.impl.phase.custom.NoChangeCustomPhaseCommand-->
 <!--    </customPhaseCommandClass>-->
