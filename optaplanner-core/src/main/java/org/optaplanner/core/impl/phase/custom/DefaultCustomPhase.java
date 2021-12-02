@@ -66,10 +66,10 @@ public class DefaultCustomPhase<Solution_> extends AbstractPhase<Solution_> impl
     public void solve(SolverScope<Solution_> solverScope) {
         CustomPhaseScope<Solution_> phaseScope = new CustomPhaseScope<>(solverScope);
         phaseStarted(phaseScope);
-        CustomStepScope<Solution_> stepScope = new CustomStepScope<>(phaseScope);
 
         InnerScoreDirector<Solution_, ?> scoreDirector = solverScope.getScoreDirector();
         while(!phaseTermination.isPhaseTerminated(phaseScope)){
+            CustomStepScope<Solution_> stepScope = new CustomStepScope<>(phaseScope);
             List<Move<Solution_>> moves = new ArrayList<>();
             List<Score> scores = new ArrayList<>();
 
@@ -88,13 +88,9 @@ public class DefaultCustomPhase<Solution_> extends AbstractPhase<Solution_> impl
             Move<Solution_> nextStep = moves.get(i);
             stepScope.setScore(maxScore);
 
-            Score bestScore = solverScope.getBestScore();
-            if( maxScore.compareTo(bestScore) <= 0 ) {
-                break;
-            }else{
-                doStep(stepScope, nextStep);
-                stepEnded(stepScope);
-            }
+            doStep(stepScope, nextStep);
+            stepEnded(stepScope);
+            phaseScope.setLastCompletedStepScope(stepScope);
         }
 
         phaseEnded(phaseScope);
