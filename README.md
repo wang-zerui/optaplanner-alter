@@ -1,5 +1,6 @@
 # 〽️Optaplanner算法替换文档
 
++ 👤author: [@王泽睿](https://github.com/xinwuyun)、[@孙蕴琦](https://github.com/Holmes233666)
 + 🗞️version2.0
 + 📅2021年12月13日
 
